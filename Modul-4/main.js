@@ -1,6 +1,6 @@
 // File: main.js
 // Integrasi Logika Data dan Render ke Elemen DOM
-const projects = [
+let projects = [
   {
     id: 1,
     title: "Sistem Inventaris Keuangan",
@@ -47,6 +47,10 @@ const updateStats = (dataList) => {
   document.getElementById("stat-completed-projects").textContent =
     completedCount;
 };
+
+let currentCategory = "Semua";
+let currentSearch = "";
+
 const renderProjects = (filteredList) => {
   const container = document.getElementById("project-list");
   if (!container) return;
@@ -67,7 +71,9 @@ const renderProjects = (filteredList) => {
     <p class="project-budget">${formatRupiah(proj.budget)}</p>
   </div>
  <div>
- <span class="badge ${badgeClass}">${statusText}</span>
+  <span class="badge ${badgeClass}">${statusText}</span>
+  <button class="btn-action btn-toggle" onclick="toggleStatus(${proj.id})">Ubah Status</button>
+  <button class="btn-action btn-delete" onclick="deleteProject(${proj.id})">Hapus</button>
  </div>
  </div>
  `;
@@ -75,9 +81,91 @@ const renderProjects = (filteredList) => {
     .join("");
   container.innerHTML = htmlString;
 };
+
+// fungsi untuk menerapkan filter berdasarkan kategori dan pencarian
+const applyFilters = () => {
+  let result = projects;
+
+  if (currentCategory !== "Semua") {
+    result = result.filter(p => p.category === currentCategory);
+  }
+
+  if (currentSearch.trim() !== "") {
+    result = result.filter(p => p.title.toLowerCase().includes(currentSearch.toLowerCase()));
+  }
+
+  renderProjects(result);
+};
+
+// fitur 1 Form Input Proyek Dinamis & Validasi
+  const form = document.getElementById("project-form");
+  if (form) {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("input-title").value.trim();
+      const category = document.getElementById("input-category").value;
+      const budget = parseFloat(document.getElementById("input-budget").value);
+      const completed = document.getElementById("input-completed").checked;
+
+      // Validasi
+      if (!title || isNaN(budget) || budget <= 0) {
+        alert("Isi judul proyek dan anggaran.");
+        return;
+      }
+
+      // Buat Objek Proyek Baru
+      const newProject = {
+        id: Date.now(),
+        title,
+        category,
+        budget,
+        completed
+      };
+
+      // Tambahkan ke Array
+      projects = [...projects, newProject];
+
+      // Reset Form & Update Tampilan
+      form.reset();
+      updateStats(projects);
+      applyFilters();
+    });
+  }
+
+  // fitur 2 Live Search
+  const searchInput = document.getElementById("search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      currentSearch = e.target.value;
+      applyFilters();
+    });
+  }
+
+// fitur 3 Interaktif kartu proyrek
+// Ubah Status Proyek
+const toggleStatus = (id) => {
+  projects = projects.map(proj => {
+    if (proj.id === id) {
+      return { ...proj, completed: !proj.completed };
+    }
+    return proj;
+  });
+  updateStats(projects);
+  applyFilters();
+};
+
+// Hapus Proyek
+const deleteProject = (id) => {
+  projects = projects.filter(proj => proj.id !== id);
+  updateStats(projects);
+  applyFilters();
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   renderProjects(projects);
   updateStats(projects);
+
   const filterButtons = document.querySelectorAll(".btn-filter");
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", (e) => {
