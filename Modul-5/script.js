@@ -5,15 +5,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskInput = document.querySelector("#taskInput");
     const inputError = document.querySelector("#inputError");
     const todoList = document.querySelector("#todoList");
+    const taskCounter = document.querySelector("#taskCounter");
+    const clearCompletedBtn = document.querySelector("#clearCompletedBtn");
 
     // 2. Fungsi membaca dan menyimpan ke LocalStorage
     const getTasks = () => JSON.parse(localStorage.getItem("todo_tasks")) || [];
     const saveTasks = (tasks) => localStorage.setItem("todo_tasks", JSON.stringify(tasks));
 
+    // Fitur 1: Fungsi Memperbarui Penghitung Jumlah Tugas
+    const updateCounter = (tasks) => {
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.completed).length;
+        const remaining = total - completed;
+
+        taskCounter.textContent = `Total: ${total} | Selesai: ${completed} | Belum Selesai: ${remaining}`;
+    };
+
     // 3. Fungsi menampilkan daftar tugas ke layar
     const renderTasks = () => {
         const tasks = getTasks();
         todoList.innerHTML = "";
+
+        // Perbarui penghitung setiap kali merender ulang
+        updateCounter(tasks);
 
         if (tasks.length === 0) {
             todoList.innerHTML = "<p style='text-align:center; color:#64748b; font-size:13px; padding:10px;'>Belum ada tugas tersimpan.</p>";
@@ -71,10 +85,22 @@ document.addEventListener("DOMContentLoaded", () => {
             saveTasks(tasks);
             renderTasks();
         } else if (e.target.classList.contains("delete-btn")) {
-            tasks.splice(index, 1);
-            saveTasks(tasks);
-            renderTasks();
+            // Fitur 3: Dialog Konfirmasi Sebelum Menghapus
+            const confirmDelete = confirm("Apakah Anda yakin ingin menghapus tugas ini?");
+            if (confirmDelete) {
+                tasks.splice(index, 1);
+                saveTasks(tasks);
+                renderTasks();
+            }
         }
+    });
+
+    // Fitur 2: Hapus Tugas yang Berstatus Completed
+    clearCompletedBtn.addEventListener("click", () => {
+        const tasks = getTasks();
+        const remainingTasks = tasks.filter(task => !task.completed);
+        saveTasks(remainingTasks);
+        renderTasks();
     });
 
     // Render pertama kali saat halaman selesai dimuat
