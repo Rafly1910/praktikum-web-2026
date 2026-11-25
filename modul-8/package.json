@@ -1,0 +1,29 @@
+{
+  "name": "modul-8",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "contract:emit": "prisma contract emit"
+  },
+  "dependencies": {
+    "@prisma/orm-mysql": "^8.0.0-rc.25",
+    "dotenv": "^18.0.10",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@prisma/cli-engine": "^0.10.4",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "prisma": "^8.0.0-rc.35",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5"
+  }
+}
